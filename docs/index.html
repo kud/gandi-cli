@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gandi-cli — A modern CLI for the Gandi v5 REST API</title>
+    <meta
+      name="description"
+      content="A modern CLI for the Gandi v5 REST API. Manage domains and DNS records from your terminal."
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <nav id="nav">
+      <div class="nav-inner">
+        <a class="nav-logo" href="#">gandi<span>-cli</span></a>
+        <ul class="nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#quickstart">Quick Start</a></li>
+          <li><a href="#cli">CLI</a></li>
+          <li><a href="#config">Config</a></li>
+        </ul>
+        <a
+          class="nav-cta"
+          href="https://github.com/kud/gandi-cli"
+          target="_blank"
+          rel="noopener"
+          >GitHub ↗</a
+        >
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-grid"></div>
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="hero-badge-dot"></span> v0.1.1 · MIT
+          </div>
+          <h1>gandi-cli</h1>
+          <p>
+            A modern CLI for the Gandi v5 REST API. Manage your domains and DNS
+            records from the terminal — fast, scriptable, and beautifully
+            rendered.
+          </p>
+          <div class="hero-ctas">
+            <a
+              class="btn btn-primary"
+              href="https://www.npmjs.com/package/@kud/gandi-cli"
+              target="_blank"
+              rel="noopener"
+              >View on npm</a
+            >
+            <a
+              class="btn btn-ghost"
+              href="https://github.com/kud/gandi-cli"
+              target="_blank"
+              rel="noopener"
+              >GitHub ↗</a
+            >
+          </div>
+          <div class="hero-command code-block">
+            <code>npm install -g @kud/gandi-cli</code>
+            <button class="copy-btn" data-copy="npm install -g @kud/gandi-cli">
+              Copy
+            </button>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <span class="stat-value">v0.1.1</span>
+              <div class="stat-label">Latest</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+              <span class="stat-value">5</span>
+              <div class="stat-label">Commands</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+              <span class="stat-value">2</span>
+              <div class="stat-label">APIs</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+              <span class="stat-value">MIT</span>
+              <div class="stat-label">Licence</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="section-inner">
+          <span class="section-eyebrow reveal">Why gandi-cli</span>
+          <h2 class="reveal">Features</h2>
+          <p class="section-sub reveal">
+            Everything you need to manage your Gandi domains and DNS from the
+            command line — no browser required.
+          </p>
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-icon">🌐</div>
+              <div class="feature-title">Domain Management</div>
+              <div class="feature-desc">
+                List all your registered domains and renew them for one or more
+                years — all from a single command.
+              </div>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🔧</div>
+              <div class="feature-title">Full DNS Control</div>
+              <div class="feature-desc">
+                List, create, update, and delete DNS records with support for
+                custom TTLs and all standard record types.
+              </div>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🔐</div>
+              <div class="feature-title">Flexible Authentication</div>
+              <div class="feature-desc">
+                Use the <code>GANDI_API_KEY</code> environment variable or a
+                <code>~/.config/gandi/config.toml</code> file — whatever fits
+                your workflow.
+              </div>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">⚡</div>
+              <div class="feature-title">Rich Terminal UI</div>
+              <div class="feature-desc">
+                Built with Ink and React, gandi-cli renders interactive terminal
+                output with spinners, tables, and formatted results.
+              </div>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🎯</div>
+              <div class="feature-title">Minimal Permissions</div>
+              <div class="feature-desc">
+                Fine-grained API token scoping — only grant the permissions each
+                command actually needs. No broad access required.
+              </div>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">📦</div>
+              <div class="feature-title">Zero Config to Start</div>
+              <div class="feature-desc">
+                Install globally, export your API key, and you're ready. A
+                single binary entry point, one command prefix:
+                <code>gandi</code>.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="quickstart">
+        <div class="section-inner">
+          <span class="section-eyebrow reveal">Get going fast</span>
+          <h2 class="reveal">Quick Start</h2>
+          <p class="section-sub reveal">
+            From zero to managing your domains in under a minute.
+          </p>
+          <div class="code-block reveal">
+            <pre><code><span class="comment"># 1. Install globally</span>
+<span class="cmd">npm install -g @kud/gandi-cli</span>
+
+<span class="comment"># 2. Export your Gandi personal access token</span>
+<span class="comment">#    Generate one at: gandi.net → Account → Partage → Créer un jeton d'accès personnel</span>
+<span class="cmd">export GANDI_API_KEY="your-token-here"</span>
+
+<span class="comment"># 3. List your domains</span>
+<span class="cmd">gandi domain list</span>
+<span class="output">  example.com        expires 2026-03-14
+  mysite.net         expires 2025-12-01
+  coolproject.io     expires 2027-08-22</span>
+
+<span class="comment"># 4. List DNS records for a domain</span>
+<span class="cmd">gandi dns list example.com</span>
+<span class="output">  A      www    1.2.3.4       3600
+  MX     @      mail.host.    10800
+  TXT    @      v=spf1 ...    3600</span>
+
+<span class="comment"># 5. Add or update a DNS record</span>
+<span class="cmd">gandi dns set example.com A www 5.6.7.8 --ttl 300</span>
+<span class="output">  ✓ Record updated successfully</span></code></pre>
+            <button class="copy-btn" data-copy="npm install -g @kud/gandi-cli">
+              Copy install
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="cli">
+        <div class="section-inner">
+          <span class="section-eyebrow reveal">Commands</span>
+          <h2 class="reveal">CLI Reference</h2>
+          <p class="section-sub reveal">
+            All commands are grouped under <code>gandi domain</code> and
+            <code>gandi dns</code>.
+          </p>
+          <div class="cli-list reveal">
+            <div class="cli-row">
+              <span class="cli-cmd">gandi domain list</span>
+              <span class="cli-desc"
+                >List all domains registered in your Gandi account with their
+                expiry dates.</span
+              >
+            </div>
+            <div class="cli-row">
+              <span class="cli-cmd">gandi domain renew &lt;domain&gt;</span>
+              <span class="cli-desc"
+                >Renew a domain for 1 year (default). Requires the
+                <em>Gérer le renouvellement</em> token permission.</span
+              >
+            </div>
+            <div class="cli-row">
+              <span class="cli-cmd"
+                >gandi domain renew &lt;domain&gt; --duration
+                &lt;years&gt;</span
+              >
+              <span class="cli-desc"
+                >Renew a domain for a specified number of years (e.g.
+                <code>--duration 2</code>).</span
+              >
+            </div>
+            <div class="cli-row">
+              <span class="cli-cmd">gandi dns list &lt;domain&gt;</span>
+              <span class="cli-desc"
+                >List all DNS records for a domain — type, name, value, and
+                TTL.</span
+              >
+            </div>
+            <div class="cli-row">
+              <span class="cli-cmd"
+                >gandi dns set &lt;domain&gt; &lt;type&gt; &lt;name&gt;
+                &lt;value&gt;</span
+              >
+              <span class="cli-desc"
+                >Create or replace a DNS record. Type is the record type (A,
+                AAAA, CNAME, MX, TXT, etc.).</span
+              >
+            </div>
+            <div class="cli-row">
+              <span class="cli-cmd"
+                >gandi dns set &lt;domain&gt; &lt;type&gt; &lt;name&gt;
+                &lt;value&gt; --ttl &lt;seconds&gt;</span
+              >
+              <span class="cli-desc"
+                >Set a DNS record with a custom TTL in seconds (e.g.
+                <code>--ttl 300</code>).</span
+              >
+            </div>
+            <div class="cli-row">
+              <span class="cli-cmd"
+                >gandi dns delete &lt;domain&gt; &lt;type&gt; &lt;name&gt;</span
+              >
+              <span class="cli-desc"
+                >Delete a DNS record by type and name.</span
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="config">
+        <div class="section-inner">
+          <span class="section-eyebrow reveal">Configuration</span>
+          <h2 class="reveal">Configuration</h2>
+          <p class="section-sub reveal">
+            gandi-cli reads credentials from the environment or a TOML config
+            file. The environment variable takes precedence.
+          </p>
+          <div class="config-wrap reveal">
+            <table>
+              <thead>
+                <tr>
+                  <th>Key</th>
+                  <th>Type</th>
+                  <th>Default</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code class="config-key">GANDI_API_KEY</code></td>
+                  <td>env var</td>
+                  <td><code class="config-default">—</code></td>
+                  <td>
+                    Your Gandi personal access token. Takes precedence over the
+                    config file.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code class="config-key">api_key</code></td>
+                  <td>string</td>
+                  <td><code class="config-default">—</code></td>
+                  <td>
+                    Token stored in <code>~/.config/gandi/config.toml</code>.
+                    Used when the env var is not set.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code-block reveal" style="margin-top: 24px">
+            <pre><code><span class="comment"># ~/.config/gandi/config.toml</span>
+api_key = <span class="output">"your-token-here"</span></code></pre>
+            <button class="copy-btn" data-copy='api_key = "your-token-here"'>
+              Copy
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span class="footer-name">@kud/gandi-cli</span>
+        <nav class="footer-links">
+          <a href="https://github.com/kud/gandi-cli">GitHub</a>
+          <a href="https://www.npmjs.com/package/@kud/gandi-cli">npm</a>
+          <a href="https://github.com/kud/gandi-cli/blob/main/CHANGELOG.md"
+            >Changelog</a
+          >
+        </nav>
+        <span class="footer-copy">MIT Licence</span>
+      </div>
+    </footer>
+
+    <script>
+      const nav = document.getElementById("nav")
+      const onScroll = () =>
+        nav.classList.toggle("scrolled", window.scrollY > 20)
+      window.addEventListener("scroll", onScroll, { passive: true })
+      onScroll()
+
+      document.querySelectorAll(".copy-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const text =
+            btn.dataset.copy ||
+            btn.closest(".hero-command")?.querySelector("code")?.textContent ||
+            ""
+          navigator.clipboard.writeText(text).then(() => {
+            btn.textContent = "Copied!"
+            btn.classList.add("copied")
+            setTimeout(() => {
+              btn.textContent = "Copy"
+              btn.classList.remove("copied")
+            }, 1800)
+          })
+        })
+      })
+
+      const observer = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((e) => {
+            if (e.isIntersecting) e.target.classList.add("visible")
+          }),
+        { threshold: 0.07, rootMargin: "0px 0px -40px 0px" },
+      )
+      document.querySelectorAll(".reveal").forEach((el) => observer.observe(el))
+    </script>
+  </body>
+</html>
