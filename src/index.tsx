@@ -2,6 +2,7 @@
 import React from "react"
 import { render } from "ink"
 import { Command } from "commander"
+import Doctor from "./commands/doctor.js"
 import DomainList from "./commands/domain-list.js"
 import DomainRenew from "./commands/domain-renew.js"
 import DnsList from "./commands/dns-list.js"
@@ -14,6 +15,11 @@ program
   .name("gandi")
   .description("Modern CLI for the Gandi v5 REST API")
   .version("0.1.0")
+
+program
+  .command("doctor")
+  .description("Check token info and permissions")
+  .action(() => void render(<Doctor />))
 
 const domain = program.command("domain").description("Manage domains")
 

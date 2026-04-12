@@ -36,12 +36,15 @@ const DnsList = ({ domain }: DnsListProps) => {
     return <Text color="gray">No DNS records found.</Text>
   }
 
+  const truncate = (s: string, max = 60) =>
+    s.length > max ? s.slice(0, max - 1) + "…" : s
+
   const rows = records.flatMap((r) =>
     r.rrset_values.map((v) => ({
       NAME: r.rrset_name,
       TYPE: r.rrset_type,
       TTL: String(r.rrset_ttl),
-      VALUE: v,
+      VALUE: truncate(v),
     })),
   )
 

@@ -3,7 +3,7 @@ export interface Domain {
   fqdn_unicode: string
   href: string
   id: string
-  name_server: {
+  name_server?: {
     current: string
   }
   dates: {
@@ -29,4 +29,14 @@ export interface GandiError {
   message: string
   object: string
   cause: string
+}
+
+export interface TokenInfo {
+  user_id: string
+  sharing_id: string
+  pat_id: string
+  pat_name: string
+  scope: string[]
+  entities: { id: string }[]
+  expires_in: number
 }

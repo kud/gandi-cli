@@ -8,8 +8,6 @@ interface TableProps {
   rows: Row[]
 }
 
-const pad = (str: string, len: number) => str.padEnd(len)
-
 const Table = ({ headers, rows }: TableProps) => {
   const widths = headers.map((h) =>
     Math.max(h.length, ...rows.map((r) => (r[h] ?? "").length)),
@@ -19,27 +17,26 @@ const Table = ({ headers, rows }: TableProps) => {
     <Box flexDirection="column">
       <Box>
         {headers.map((h, i) => (
-          <Text key={h} color="cyan" bold>
-            {pad(h, widths[i])}
-            {"  "}
-          </Text>
+          <Box key={h} minWidth={widths[i] + 2}>
+            <Text color="cyan" bold>
+              {h}
+            </Text>
+          </Box>
         ))}
       </Box>
       <Box>
         {headers.map((h, i) => (
-          <Text key={h} color="gray">
-            {pad("─".repeat(widths[i]), widths[i])}
-            {"  "}
-          </Text>
+          <Box key={h} minWidth={widths[i] + 2}>
+            <Text color="gray">{"─".repeat(widths[i])}</Text>
+          </Box>
         ))}
       </Box>
       {rows.map((row, ri) => (
         <Box key={ri}>
           {headers.map((h, i) => (
-            <Text key={h}>
-              {pad(row[h] ?? "", widths[i])}
-              {"  "}
-            </Text>
+            <Box key={h} minWidth={widths[i] + 2}>
+              <Text>{row[h] ?? ""}</Text>
+            </Box>
           ))}
         </Box>
       ))}

@@ -31,13 +31,28 @@ const DomainList = () => {
     return <Text color="gray">No domains found.</Text>
   }
 
+  const STATUS_MAP: Record<string, string> = {
+    clientTransferProhibited: "locked",
+    clientDeleteProhibited: "delete-locked",
+    clientUpdateProhibited: "update-locked",
+    serverTransferProhibited: "server-locked",
+    pendingTransfer: "transferring",
+    pendingDelete: "deleting",
+    pendingCreate: "creating",
+  }
+
+  const formatStatus = (statuses: string[]) => {
+    if (statuses.length === 0) return "active"
+    return statuses.map((s) => STATUS_MAP[s] ?? s).join(", ")
+  }
+
   const rows = domains.map((d) => ({
     DOMAIN: d.fqdn_unicode,
     EXPIRES: d.dates.registry_ends_at
       ? new Date(d.dates.registry_ends_at).toISOString().slice(0, 10)
       : "—",
-    STATUS: d.status.join(", ") || "active",
-    NAMESERVER: d.name_server.current,
+    STATUS: formatStatus(d.status),
+    NAMESERVER: d.name_server?.current ?? "—",
   }))
 
   return (

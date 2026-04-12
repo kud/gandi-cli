@@ -1,4 +1,9 @@
-import type { Domain, DnsRecord, GandiError } from "../types/gandi.js"
+import type {
+  Domain,
+  DnsRecord,
+  GandiError,
+  TokenInfo,
+} from "../types/gandi.js"
 
 const BASE_URL = "https://api.gandi.net/v5"
 
@@ -10,7 +15,7 @@ const request = async <T>(
   const res = await fetch(`${BASE_URL}${path}`, {
     ...options,
     headers: {
-      Authorization: `Apikey ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       ...options.headers,
     },
@@ -58,3 +63,16 @@ export const deleteDnsRecord = (
   request<void>(apiKey, `/livedns/domains/${domain}/records/${name}/${type}`, {
     method: "DELETE",
   })
+
+export const getTokenInfo = async (apiKey: string): Promise<TokenInfo> => {
+  const res = await fetch("https://id.gandi.net/tokeninfo", {
+    headers: { Authorization: `Bearer ${apiKey}` },
+  })
+  if (!res.ok) {
+    const err = (await res
+      .json()
+      .catch(() => ({ message: res.statusText }))) as GandiError
+    throw new Error(err.message ?? `HTTP ${res.status}`)
+  }
+  return res.json() as Promise<TokenInfo>
+}

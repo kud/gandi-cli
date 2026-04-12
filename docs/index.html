@@ -73,7 +73,7 @@
             </div>
             <div class="stat-divider"></div>
             <div class="stat">
-              <span class="stat-value">5</span>
+              <span class="stat-value">6</span>
               <div class="stat-label">Commands</div>
             </div>
             <div class="stat-divider"></div>
@@ -168,19 +168,30 @@
 <span class="comment">#    Generate one at: gandi.net → Account → Partage → Créer un jeton d'accès personnel</span>
 <span class="cmd">export GANDI_API_KEY="your-token-here"</span>
 
-<span class="comment"># 3. List your domains</span>
+<span class="comment"># 3. Check your token permissions</span>
+<span class="cmd">gandi doctor</span>
+<span class="output">  Gandi CLI · Expires in 29 days · 1 entity
+
+  ✓  domain:view   gandi domain list
+  ✗  domain:renew  gandi domain renew
+  ✓  domain:tech   gandi dns list / set / delete</span>
+
+<span class="comment"># 4. List your domains</span>
 <span class="cmd">gandi domain list</span>
-<span class="output">  example.com        expires 2026-03-14
-  mysite.net         expires 2025-12-01
-  coolproject.io     expires 2027-08-22</span>
+<span class="output">  DOMAIN        EXPIRES     STATUS  NAMESERVER
+  ────────────  ──────────  ──────  ──────────
+  example.com   2026-08-14  locked  —
+  mysite.net    2027-03-01  locked  —</span>
 
-<span class="comment"># 4. List DNS records for a domain</span>
+<span class="comment"># 5. List DNS records</span>
 <span class="cmd">gandi dns list example.com</span>
-<span class="output">  A      www    1.2.3.4       3600
-  MX     @      mail.host.    10800
-  TXT    @      v=spf1 ...    3600</span>
+<span class="output">  NAME  TYPE  TTL    VALUE
+  ────  ────  ─────  ───────────────────
+  @     A     1800   1.2.3.4
+  @     MX    10800  10 spool.mail.gandi.net.
+  www   CNAME 10800  webredir.gandi.net.</span>
 
-<span class="comment"># 5. Add or update a DNS record</span>
+<span class="comment"># 6. Add or update a DNS record</span>
 <span class="cmd">gandi dns set example.com A www 5.6.7.8 --ttl 300</span>
 <span class="output">  ✓ Record updated successfully</span></code></pre>
             <button class="copy-btn" data-copy="npm install -g @kud/gandi-cli">
@@ -195,10 +206,17 @@
           <span class="section-eyebrow reveal">Commands</span>
           <h2 class="reveal">CLI Reference</h2>
           <p class="section-sub reveal">
-            All commands are grouped under <code>gandi domain</code> and
-            <code>gandi dns</code>.
+            Commands are grouped under <code>gandi doctor</code>,
+            <code>gandi domain</code>, and <code>gandi dns</code>.
           </p>
           <div class="cli-list reveal">
+            <div class="cli-row">
+              <span class="cli-cmd">gandi doctor</span>
+              <span class="cli-desc"
+                >Check your Personal Access Token info — shows which scopes are
+                granted and which commands are unlocked.</span
+              >
+            </div>
             <div class="cli-row">
               <span class="cli-cmd">gandi domain list</span>
               <span class="cli-desc"
