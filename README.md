@@ -1,12 +1,3 @@
-```
- ██████╗  █████╗ ███╗  ██╗██████╗ ██╗      ██████╗██╗     ██╗
-██╔════╝ ██╔══██╗████╗ ██║██╔══██╗██║     ██╔════╝██║     ██║
-██║  ███╗███████║██╔██╗██║██║  ██║██║     ██║     ██║     ██║
-██║   ██║██╔══██║██║╚████║██║  ██║██║     ██║     ██║     ██║
-╚██████╔╝██║  ██║██║ ╚███║██████╔╝███████╗╚██████╗███████╗██║
- ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚══╝╚═════╝ ╚══════╝ ╚═════╝╚══════╝╚═╝
-```
-
 <div align="center">
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
@@ -71,4 +62,4 @@ npm run dev -- doctor
 
 ---
 
-📚 **Full documentation → https://kud.io/projects/gandi-cli/docs**
+📚 **Full documentation → [gandi-cli/docs](https://kud.io/projects/gandi-cli/docs)**
