@@ -4,6 +4,24 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.4.0 — 2026-06-20
+
+### Highlights
+
+- **Major DNS expansion: `dns add`, `dns get`, and `dns export`.** You can now append a value to an existing record set without touching the rest of it (`dns add <domain> <type> <name> <value>`), inspect a single record directly (`dns get <domain> <type> <name>`), and export the entire zone as a BIND master file (`dns export <domain>`). The add command also accepts an optional `--ttl` override while preserving the existing TTL by default. ([5f366b2](https://github.com/kud/gandi-cli/commit/5f366b2fdd4e121b969029992614e543c9bd639d), [8a6ca12](https://github.com/kud/gandi-cli/commit/8a6ca1235675db49ae313cbe04ba54aad31310e8))
+
+- **Full domain management suite.** Four new `domain` sub-commands ship in this release: `domain info` shows registration dates, status, nameservers, and auto-renew state in one glance; `domain available` checks whether a name is free to register and what it costs; `domain autorenew on|off` toggles auto-renewal; and `domain nameservers` lists the authoritative nameservers. ([8a6ca12](https://github.com/kud/gandi-cli/commit/8a6ca1235675db49ae313cbe04ba54aad31310e8))
+
+- **New `gandi redirect` command group for web forwarding.** A complete set of subcommands — `redirect list`, `redirect add`, and `redirect delete` — lets you manage Gandi web redirections directly from the CLI. `redirect add` accepts a `--type` flag (`http301`, `http302`, or `cloak`) to control redirect behaviour. ([8a6ca12](https://github.com/kud/gandi-cli/commit/8a6ca1235675db49ae313cbe04ba54aad31310e8))
+
+- **Destructive commands now require confirmation.** `dns delete` and `redirect delete` both block until you pass `--yes`, preventing accidental data loss. A shared `DangerousAction` guard exits with a non-zero code if the flag is absent, making it safe to call from scripts that check exit codes. ([8a6ca12](https://github.com/kud/gandi-cli/commit/8a6ca1235675db49ae313cbe04ba54aad31310e8))
+
+### Documentation
+
+- Every new command is documented with examples and included in the quick-reference tables. A dedicated Redirects page (`redirect.mdx`) has been added to the docs site. The authentication and doctor pages have been overhauled: French permission names replaced with English equivalents, scope identifiers added, token troubleshooting steps made explicit, and a new Troubleshooting section added to `authentication.mdx`. ([4c5b48b](https://github.com/kud/gandi-cli/commit/4c5b48b3ade660beddbe72e283564a3067772611), [8a6ca12](https://github.com/kud/gandi-cli/commit/8a6ca1235675db49ae313cbe04ba54aad31310e8))
+
+---
+
 ## 0.3.0 — 2026-06-20
 
 ### Highlights
