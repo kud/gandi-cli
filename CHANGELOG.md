@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.5.1 — 2026-06-20
+
+### Fixes
+
+- Piping output to tools such as `head` or `jq` no longer crashes with an unhandled `EPIPE` error when the downstream reader closes the pipe early — the process now exits cleanly. ([e7fbe50](https://github.com/kud/gandi-cli/commit/e7fbe507202f866250ffbce518b4546cc5ea14ee))
+
+---
+
 ## 0.5.0 — 2026-06-20
 
 ### Highlights
