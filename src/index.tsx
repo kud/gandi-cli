@@ -8,6 +8,7 @@ import DomainList from "./commands/domain-list.js"
 import DomainRenew from "./commands/domain-renew.js"
 import DnsList from "./commands/dns-list.js"
 import DnsSet from "./commands/dns-set.js"
+import DnsAdd from "./commands/dns-add.js"
 import DnsDelete from "./commands/dns-delete.js"
 
 const pkg = JSON.parse(
@@ -70,6 +71,30 @@ dns
           name={name}
           value={value}
           ttl={parseInt(opts.ttl, 10)}
+        />,
+      )
+    },
+  )
+
+dns
+  .command("add <domain> <type> <name> <value>")
+  .description("Append a value to a DNS record without replacing it")
+  .option("-t, --ttl <seconds>", "TTL in seconds")
+  .action(
+    (
+      d: string,
+      type: string,
+      name: string,
+      value: string,
+      opts: { ttl?: string },
+    ) => {
+      void render(
+        <DnsAdd
+          domain={d}
+          type={type}
+          name={name}
+          value={value}
+          ttl={opts.ttl ? parseInt(opts.ttl, 10) : undefined}
         />,
       )
     },
