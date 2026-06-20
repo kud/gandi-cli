@@ -31,10 +31,9 @@ export interface GandiError {
   cause: string
 }
 
-export interface UserInfo {
-  id?: string
-  username?: string
-  name?: string
-  email?: string
-  lang?: string
+export interface TokenInfo {
+  pat_name: string
+  scope: string[]
+  entities: { id: string }[]
+  expires_in: number
 }
