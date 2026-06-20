@@ -4,6 +4,18 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.5.0 — 2026-06-20
+
+### Highlights
+
+- **Every command can now emit structured JSON, making the CLI a scriptable backend.** Pass `--json` to any command and it switches from the interactive TUI to raw JSON on stdout. Read commands return the API payload directly; write commands return `{ "ok": true, … }` on success; errors print `{ "error": "…" }` to stderr with a non-zero exit code so callers can branch on failure without parsing human-readable text. Destructive commands still require `--yes` in JSON mode, so automated pipelines cannot accidentally delete data. An `execute()` helper dispatches internally between the Ink renderer and the JSON path, so the behaviour is consistent across the entire command surface. ([4c87680](https://github.com/kud/gandi-cli/commit/4c8768045bd4b20457a0107e3debd29da6dfd366))
+
+### Documentation
+
+- Usage examples for the `--json` flag have been added to the docs site (`docs/index.mdx`), covering read, write, and error cases. ([4c87680](https://github.com/kud/gandi-cli/commit/4c8768045bd4b20457a0107e3debd29da6dfd366))
+
+---
+
 ## 0.4.0 — 2026-06-20
 
 ### Highlights
