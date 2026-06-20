@@ -19,12 +19,54 @@ import RedirectList from "./commands/redirect-list.js"
 import RedirectAdd from "./commands/redirect-add.js"
 import RedirectDelete from "./commands/redirect-delete.js"
 import CommandError from "./components/command-error.js"
-import { exportZone } from "./lib/api.js"
+import {
+  listDomains,
+  getDomain,
+  checkDomain,
+  renewDomain,
+  setAutorenew,
+  listDnsRecords,
+  getDnsRecord,
+  setDnsRecord,
+  addDnsValue,
+  deleteDnsRecord,
+  exportZone,
+  listRedirects,
+  addRedirect,
+  deleteRedirect,
+  getTokenInfo,
+} from "./lib/api.js"
 import { getApiKey } from "./lib/config.js"
 
 const pkg = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 ) as { version: string }
+
+const wantsJson = process.argv.includes("--json")
+
+// In JSON mode, run the data fetch and print structured output (data to stdout,
+// errors as JSON to stderr with a non-zero exit). Otherwise render the Ink UI.
+const execute = (
+  fetch: () => Promise<unknown>,
+  ink: () => React.ReactElement,
+) => {
+  if (!wantsJson) {
+    render(ink())
+    return
+  }
+  fetch()
+    .then((data) =>
+      process.stdout.write(
+        JSON.stringify(data ?? { ok: true }, null, 2) + "\n",
+      ),
+    )
+    .catch((e) => {
+      process.stderr.write(
+        JSON.stringify({ error: (e as Error).message }) + "\n",
+      )
+      process.exitCode = 1
+    })
+}
 
 const program = new Command()
 
@@ -32,59 +74,106 @@ program
   .name("gandi")
   .description("Modern CLI for the Gandi v5 REST API")
   .version(pkg.version)
+  .option(
+    "--json",
+    "Output JSON instead of formatted text (for scripts and AI)",
+  )
   .showHelpAfterError("(add --help for usage)")
 
 program
   .command("doctor")
   .description("Check token info and permissions")
-  .action(() => void render(<Doctor />))
+  .action(() =>
+    execute(
+      () => getTokenInfo(getApiKey()),
+      () => <Doctor />,
+    ),
+  )
 
 const domain = program.command("domain").description("Manage domains")
 
 domain
   .command("list")
   .description("List all domains")
-  .action(() => void render(<DomainList />))
+  .action(() =>
+    execute(
+      () => listDomains(getApiKey()),
+      () => <DomainList />,
+    ),
+  )
 
 domain
   .command("renew <domain>")
   .description("Renew a domain")
   .option("-d, --duration <years>", "Number of years to renew", "1")
   .action((d: string, opts: { duration: string }) => {
-    void render(
-      <DomainRenew domain={d} duration={parseInt(opts.duration, 10)} />,
+    const duration = parseInt(opts.duration, 10)
+    execute(
+      async () => {
+        await renewDomain(getApiKey(), d, duration)
+        return { ok: true, domain: d, duration }
+      },
+      () => <DomainRenew domain={d} duration={duration} />,
     )
   })
 
 domain
   .command("info <domain>")
   .description("Show details for a domain")
-  .action((d: string) => void render(<DomainInfo domain={d} />))
+  .action((d: string) =>
+    execute(
+      () => getDomain(getApiKey(), d),
+      () => <DomainInfo domain={d} />,
+    ),
+  )
 
 domain
   .command("available <name>")
   .description("Check whether a domain is available to register")
-  .action((name: string) => void render(<DomainAvailable name={name} />))
+  .action((name: string) =>
+    execute(
+      () => checkDomain(getApiKey(), name),
+      () => <DomainAvailable name={name} />,
+    ),
+  )
 
 domain
   .command("autorenew <domain> <state>")
   .description("Turn auto-renew on or off")
-  .action(
-    (d: string, state: string) =>
-      void render(<DomainAutorenew domain={d} enabled={state === "on"} />),
-  )
+  .action((d: string, state: string) => {
+    const enabled = state === "on"
+    execute(
+      async () => {
+        await setAutorenew(getApiKey(), d, enabled)
+        return { ok: true, domain: d, enabled }
+      },
+      () => <DomainAutorenew domain={d} enabled={enabled} />,
+    )
+  })
 
 domain
   .command("nameservers <domain>")
   .description("Show the nameservers for a domain")
-  .action((d: string) => void render(<DomainNameservers domain={d} />))
+  .action((d: string) =>
+    execute(
+      async () => ({
+        nameservers: (await getDomain(getApiKey(), d)).nameservers ?? [],
+      }),
+      () => <DomainNameservers domain={d} />,
+    ),
+  )
 
 const dns = program.command("dns").description("Manage LiveDNS records")
 
 dns
   .command("list <domain>")
   .description("List DNS records for a domain")
-  .action((d: string) => void render(<DnsList domain={d} />))
+  .action((d: string) =>
+    execute(
+      () => listDnsRecords(getApiKey(), d),
+      () => <DnsList domain={d} />,
+    ),
+  )
 
 dns
   .command("set <domain> <type> <name> <value>")
@@ -98,14 +187,15 @@ dns
       value: string,
       opts: { ttl: string },
     ) => {
-      void render(
-        <DnsSet
-          domain={d}
-          type={type}
-          name={name}
-          value={value}
-          ttl={parseInt(opts.ttl, 10)}
-        />,
+      const ttl = parseInt(opts.ttl, 10)
+      execute(
+        async () => {
+          await setDnsRecord(getApiKey(), d, type, name, [value], ttl)
+          return { ok: true, name, type, values: [value], ttl }
+        },
+        () => (
+          <DnsSet domain={d} type={type} name={name} value={value} ttl={ttl} />
+        ),
       )
     },
   )
@@ -122,14 +212,12 @@ dns
       value: string,
       opts: { ttl?: string },
     ) => {
-      void render(
-        <DnsAdd
-          domain={d}
-          type={type}
-          name={name}
-          value={value}
-          ttl={opts.ttl ? parseInt(opts.ttl, 10) : undefined}
-        />,
+      const ttl = opts.ttl ? parseInt(opts.ttl, 10) : undefined
+      execute(
+        () => addDnsValue(getApiKey(), d, type, name, value, ttl),
+        () => (
+          <DnsAdd domain={d} type={type} name={name} value={value} ttl={ttl} />
+        ),
       )
     },
   )
@@ -137,9 +225,11 @@ dns
 dns
   .command("get <domain> <type> <name>")
   .description("Show a single DNS record")
-  .action(
-    (d: string, type: string, name: string) =>
-      void render(<DnsGet domain={d} type={type} name={name} />),
+  .action((d: string, type: string, name: string) =>
+    execute(
+      () => getDnsRecord(getApiKey(), d, type, name),
+      () => <DnsGet domain={d} type={type} name={name} />,
+    ),
   )
 
 dns
@@ -147,9 +237,17 @@ dns
   .description("Export the whole zone as a BIND file")
   .action(async (d: string) => {
     try {
-      process.stdout.write(await exportZone(getApiKey(), d))
+      const zone = await exportZone(getApiKey(), d)
+      process.stdout.write(wantsJson ? JSON.stringify({ zone }) + "\n" : zone)
     } catch (e) {
-      render(<CommandError error={e as Error} />)
+      if (wantsJson) {
+        process.stderr.write(
+          JSON.stringify({ error: (e as Error).message }) + "\n",
+        )
+        process.exitCode = 1
+      } else {
+        render(<CommandError error={e as Error} />)
+      }
     }
   })
 
@@ -157,9 +255,16 @@ dns
   .command("delete <domain> <type> <name>")
   .description("Delete a DNS record")
   .option("-y, --yes", "Skip the confirmation prompt")
-  .action((d: string, type: string, name: string, opts: { yes?: boolean }) => {
-    void render(<DnsDelete domain={d} type={type} name={name} yes={opts.yes} />)
-  })
+  .action((d: string, type: string, name: string, opts: { yes?: boolean }) =>
+    execute(
+      async () => {
+        if (!opts.yes) throw new Error("Refusing to delete without --yes")
+        await deleteDnsRecord(getApiKey(), d, type, name)
+        return { ok: true, deleted: { domain: d, type, name } }
+      },
+      () => <DnsDelete domain={d} type={type} name={name} yes={opts.yes} />,
+    ),
+  )
 
 const redirect = program
   .command("redirect")
@@ -168,7 +273,12 @@ const redirect = program
 redirect
   .command("list <domain>")
   .description("List web redirects for a domain")
-  .action((d: string) => void render(<RedirectList domain={d} />))
+  .action((d: string) =>
+    execute(
+      () => listRedirects(getApiKey(), d),
+      () => <RedirectList domain={d} />,
+    ),
+  )
 
 redirect
   .command("add <domain> <source> <target>")
@@ -178,25 +288,36 @@ redirect
     "Redirect type: http301, http302, or cloak",
     "http301",
   )
-  .action(
-    (d: string, source: string, target: string, opts: { type: string }) =>
-      void render(
+  .action((d: string, source: string, target: string, opts: { type: string }) =>
+    execute(
+      async () => {
+        await addRedirect(getApiKey(), d, source, target, opts.type)
+        return { ok: true, source, target, type: opts.type }
+      },
+      () => (
         <RedirectAdd
           domain={d}
           host={source}
           target={target}
           type={opts.type}
-        />,
+        />
       ),
+    ),
   )
 
 redirect
   .command("delete <domain> <source>")
   .description("Delete a web redirect")
   .option("-y, --yes", "Skip the confirmation prompt")
-  .action(
-    (d: string, source: string, opts: { yes?: boolean }) =>
-      void render(<RedirectDelete domain={d} host={source} yes={opts.yes} />),
+  .action((d: string, source: string, opts: { yes?: boolean }) =>
+    execute(
+      async () => {
+        if (!opts.yes) throw new Error("Refusing to delete without --yes")
+        await deleteRedirect(getApiKey(), d, source)
+        return { ok: true, deleted: { domain: d, source } }
+      },
+      () => <RedirectDelete domain={d} host={source} yes={opts.yes} />,
+    ),
   )
 
-program.parse()
+program.parse(process.argv.filter((a) => a !== "--json"))
