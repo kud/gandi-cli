@@ -5,6 +5,7 @@ import { getApiKey } from "../lib/config.js"
 import type { TokenInfo } from "../types/gandi.js"
 import SpinnerAction from "../components/spinner-action.js"
 import CommandError from "../components/command-error.js"
+import { useExit } from "../hooks/use-exit.js"
 
 const SCOPE_MAP: Record<string, { commands: string }> = {
   "domain:view": { commands: "gandi domain list" },
@@ -22,6 +23,7 @@ const formatExpiry = (seconds: number): string => {
 const Doctor = () => {
   const [info, setInfo] = useState<TokenInfo | null>(null)
   const [error, setError] = useState<Error | null>(null)
+  useExit(info !== null)
 
   useEffect(() => {
     const run = async () => {

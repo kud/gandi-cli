@@ -4,6 +4,7 @@ import { setDnsRecord } from "../lib/api.js"
 import { getApiKey } from "../lib/config.js"
 import SpinnerAction from "../components/spinner-action.js"
 import CommandError from "../components/command-error.js"
+import { useExit } from "../hooks/use-exit.js"
 
 interface DnsSetProps {
   domain: string
@@ -16,6 +17,7 @@ interface DnsSetProps {
 const DnsSet = ({ domain, type, name, value, ttl }: DnsSetProps) => {
   const [done, setDone] = useState(false)
   const [error, setError] = useState<Error | null>(null)
+  useExit(done)
 
   useEffect(() => {
     const run = async () => {

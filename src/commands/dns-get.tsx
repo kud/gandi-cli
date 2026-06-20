@@ -5,6 +5,7 @@ import { getApiKey } from "../lib/config.js"
 import type { DnsRecord } from "../types/gandi.js"
 import SpinnerAction from "../components/spinner-action.js"
 import CommandError from "../components/command-error.js"
+import { useExit } from "../hooks/use-exit.js"
 
 interface DnsGetProps {
   domain: string
@@ -15,6 +16,7 @@ interface DnsGetProps {
 const DnsGet = ({ domain, type, name }: DnsGetProps) => {
   const [record, setRecord] = useState<DnsRecord | null | undefined>(undefined)
   const [error, setError] = useState<Error | null>(null)
+  useExit(record !== undefined)
 
   useEffect(() => {
     const run = async () => {

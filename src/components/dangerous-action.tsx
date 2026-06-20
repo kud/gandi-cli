@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import { Box, Text } from "ink"
 import SpinnerAction from "./spinner-action.js"
 import CommandError from "./command-error.js"
+import { useExit } from "../hooks/use-exit.js"
 
 interface DangerousActionProps {
   prompt: string
@@ -33,6 +34,7 @@ const DangerousAction = ({
   useEffect(() => {
     if (phase === "blocked") process.exitCode = 1
   }, [])
+  useExit(phase === "blocked" || phase === "done")
 
   if (error) return <CommandError error={error} />
   if (phase === "blocked")

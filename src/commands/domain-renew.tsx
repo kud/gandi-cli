@@ -3,6 +3,7 @@ import { Box, Text } from "ink"
 import { renewDomain } from "../lib/api.js"
 import { getApiKey } from "../lib/config.js"
 import CommandError from "../components/command-error.js"
+import { useExit } from "../hooks/use-exit.js"
 import SpinnerAction from "../components/spinner-action.js"
 
 interface DomainRenewProps {
@@ -13,6 +14,7 @@ interface DomainRenewProps {
 const DomainRenew = ({ domain, duration = 1 }: DomainRenewProps) => {
   const [done, setDone] = useState(false)
   const [error, setError] = useState<Error | null>(null)
+  useExit(done)
 
   useEffect(() => {
     const run = async () => {

@@ -6,10 +6,12 @@ import type { WebRedir } from "../types/gandi.js"
 import Table from "../components/table.js"
 import SpinnerAction from "../components/spinner-action.js"
 import CommandError from "../components/command-error.js"
+import { useExit } from "../hooks/use-exit.js"
 
 const RedirectList = ({ domain }: { domain: string }) => {
   const [redirects, setRedirects] = useState<WebRedir[] | null>(null)
   const [error, setError] = useState<Error | null>(null)
+  useExit(redirects !== null)
 
   useEffect(() => {
     const run = async () => {

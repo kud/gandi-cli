@@ -5,10 +5,12 @@ import { getApiKey } from "../lib/config.js"
 import type { DomainCheck } from "../types/gandi.js"
 import SpinnerAction from "../components/spinner-action.js"
 import CommandError from "../components/command-error.js"
+import { useExit } from "../hooks/use-exit.js"
 
 const DomainAvailable = ({ name }: { name: string }) => {
   const [data, setData] = useState<DomainCheck | null>(null)
   const [error, setError] = useState<Error | null>(null)
+  useExit(data !== null)
 
   useEffect(() => {
     const run = async () => {

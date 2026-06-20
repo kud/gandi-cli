@@ -6,6 +6,7 @@ import type { DnsRecord } from "../types/gandi.js"
 import Table from "../components/table.js"
 import SpinnerAction from "../components/spinner-action.js"
 import CommandError from "../components/command-error.js"
+import { useExit } from "../hooks/use-exit.js"
 
 interface DnsListProps {
   domain: string
@@ -14,6 +15,7 @@ interface DnsListProps {
 const DnsList = ({ domain }: DnsListProps) => {
   const [records, setRecords] = useState<DnsRecord[] | null>(null)
   const [error, setError] = useState<Error | null>(null)
+  useExit(records !== null)
 
   useEffect(() => {
     const run = async () => {

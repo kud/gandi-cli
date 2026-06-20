@@ -6,10 +6,12 @@ import type { Domain } from "../types/gandi.js"
 import Table from "../components/table.js"
 import SpinnerAction from "../components/spinner-action.js"
 import CommandError from "../components/command-error.js"
+import { useExit } from "../hooks/use-exit.js"
 
 const DomainList = () => {
   const [domains, setDomains] = useState<Domain[] | null>(null)
   const [error, setError] = useState<Error | null>(null)
+  useExit(domains !== null)
 
   useEffect(() => {
     const run = async () => {
