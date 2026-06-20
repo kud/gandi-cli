@@ -1,8 +1,10 @@
 import type {
   Domain,
+  DomainCheck,
   DnsRecord,
   GandiError,
   TokenInfo,
+  WebRedir,
 } from "../types/gandi.js"
 import { authError } from "./errors.js"
 
@@ -42,6 +44,18 @@ const request = async <T>(
 export const listDomains = (apiKey: string): Promise<Domain[]> =>
   request<Domain[]>(apiKey, "/domain/domains")
 
+export const getDomain = (apiKey: string, domain: string): Promise<Domain> =>
+  request<Domain>(apiKey, `/domain/domains/${domain}`)
+
+export const checkDomain = (
+  apiKey: string,
+  name: string,
+): Promise<DomainCheck> =>
+  request<DomainCheck>(
+    apiKey,
+    `/domain/check?name=${encodeURIComponent(name)}&processes=create`,
+  )
+
 export const renewDomain = (
   apiKey: string,
   domain: string,
@@ -50,6 +64,43 @@ export const renewDomain = (
   request<void>(apiKey, `/domain/domains/${domain}/renew`, {
     method: "POST",
     body: JSON.stringify({ duration }),
+  })
+
+export const setAutorenew = (
+  apiKey: string,
+  domain: string,
+  enabled: boolean,
+): Promise<void> =>
+  request<void>(apiKey, `/domain/domains/${domain}/autorenew`, {
+    method: "PATCH",
+    body: JSON.stringify({ enabled }),
+  })
+
+export const listRedirects = (
+  apiKey: string,
+  domain: string,
+): Promise<WebRedir[]> =>
+  request<WebRedir[]>(apiKey, `/domain/domains/${domain}/webredirs`)
+
+export const addRedirect = (
+  apiKey: string,
+  domain: string,
+  host: string,
+  url: string,
+  type: string,
+): Promise<void> =>
+  request<void>(apiKey, `/domain/domains/${domain}/webredirs`, {
+    method: "POST",
+    body: JSON.stringify({ host, url, type }),
+  })
+
+export const deleteRedirect = (
+  apiKey: string,
+  domain: string,
+  host: string,
+): Promise<void> =>
+  request<void>(apiKey, `/domain/domains/${domain}/webredirs/${host}`, {
+    method: "DELETE",
   })
 
 export const listDnsRecords = (
@@ -70,6 +121,19 @@ export const setDnsRecord = (
     method: "PUT",
     body: JSON.stringify({ rrset_ttl: ttl, rrset_values: values }),
   })
+
+// Returns the whole zone as a BIND-format master file (RFC 1035), via the
+// LiveDNS records route with an Accept: text/plain header.
+export const exportZone = async (
+  apiKey: string,
+  domain: string,
+): Promise<string> => {
+  const res = await fetch(`${BASE_URL}/livedns/domains/${domain}/records`, {
+    headers: { Authorization: `Bearer ${apiKey}`, Accept: "text/plain" },
+  })
+  if (!res.ok) throw await toError(res)
+  return res.text()
+}
 
 export const getDnsRecord = async (
   apiKey: string,

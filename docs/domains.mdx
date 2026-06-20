@@ -35,13 +35,59 @@ gandi domain renew example.com --duration 3
 **Requires:** the **View and renew domains** (`domain:renew`) permission on your
 token.
 
+## ℹ️ Show domain details
+
+Print a domain's status, registration dates, nameservers, and auto-renew state:
+
+```sh
+gandi domain info example.com
+```
+
+**Requires:** the **View and renew domains** (`domain:view`) permission on your
+token.
+
+## 🔎 Check availability
+
+Check whether a domain can be registered, along with its price:
+
+```sh
+gandi domain available example.com
+```
+
+## ♻️ Toggle auto-renew
+
+Turn automatic renewal on or off:
+
+```sh
+gandi domain autorenew example.com on
+gandi domain autorenew example.com off
+```
+
+**Requires:** the **View and renew domains** (`domain:renew`) permission on your
+token.
+
+## 🌐 Show nameservers
+
+List the nameservers currently set for a domain:
+
+```sh
+gandi domain nameservers example.com
+```
+
+**Requires:** the **View and renew domains** (`domain:view`) permission on your
+token.
+
 ## 📖 Command reference
 
 | Command                                          | Description                                   |
 | ------------------------------------------------ | --------------------------------------------- |
 | `gandi domain list`                              | List all domains with expiry dates and status |
+| `gandi domain info <domain>`                     | Show status, dates, nameservers, auto-renew   |
+| `gandi domain available <name>`                  | Check whether a domain can be registered      |
 | `gandi domain renew <domain>`                    | Renew a domain for 1 year                     |
 | `gandi domain renew <domain> --duration <years>` | Renew for a specified number of years         |
+| `gandi domain autorenew <domain> on\|off`        | Turn auto-renew on or off                     |
+| `gandi domain nameservers <domain>`              | Show the nameservers for a domain             |
 
 Not sure which commands your token can run? Use
 [`gandi doctor`](/projects/gandi-cli/docs/doctor) to check your scopes.

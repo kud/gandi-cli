@@ -6,6 +6,12 @@ export interface Domain {
   name_server?: {
     current: string
   }
+  nameservers?: string[]
+  autorenew?: {
+    enabled: boolean
+    duration?: number
+  }
+  services?: string[]
   dates: {
     created_at: string
     registry_created_at: string
@@ -14,6 +20,30 @@ export interface Domain {
   }
   status: string[]
   tld: string
+}
+
+export interface DomainCheck {
+  currency?: string
+  products: {
+    name: string
+    status: string
+    process?: string
+    prices?: {
+      min_duration?: number
+      max_duration?: number
+      duration_unit?: string
+      price_before_taxes?: number
+      price_after_taxes?: number
+    }[]
+  }[]
+}
+
+export interface WebRedir {
+  host: string
+  type: string
+  url?: string
+  protocol?: string
+  override?: boolean
 }
 
 export interface DnsRecord {

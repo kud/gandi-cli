@@ -61,12 +61,36 @@ untouched.
 **Requires:** the **Manage technical configuration** (`domain:tech`) permission
 on your token.
 
-## 🗑️ Delete a record
+## 🔍 Show a record
 
-Remove a record by type and name:
+Print a single record — its values and TTL:
 
 ```sh
-gandi dns delete example.com A www
+gandi dns get example.com A www
+```
+
+**Requires:** the **Manage technical configuration** (`domain:tech`) permission
+on your token.
+
+## 📤 Export the zone
+
+Export the entire zone as a BIND-format master file — handy for backups or
+review. Redirect it to a file:
+
+```sh
+gandi dns export example.com > example.com.zone
+```
+
+**Requires:** the **Manage technical configuration** (`domain:tech`) permission
+on your token.
+
+## 🗑️ Delete a record
+
+Remove a record by type and name. Deletes ask for confirmation — pass `--yes`
+to skip the prompt (for example, in scripts):
+
+```sh
+gandi dns delete example.com A www --yes
 ```
 
 **Requires:** the **Manage technical configuration** (`domain:tech`) permission
@@ -80,7 +104,9 @@ on your token.
 | `gandi dns set <domain> <type> <name> <value>`                 | Create or replace a DNS record    |
 | `gandi dns set <domain> <type> <name> <value> --ttl <seconds>` | Set with a custom TTL in seconds  |
 | `gandi dns add <domain> <type> <name> <value>`                 | Append a value without replacing  |
-| `gandi dns delete <domain> <type> <name>`                      | Delete a DNS record               |
+| `gandi dns get <domain> <type> <name>`                         | Show a single record              |
+| `gandi dns export <domain>`                                    | Export the zone as a BIND file    |
+| `gandi dns delete <domain> <type> <name> --yes`                | Delete a record (skip the prompt) |
 
 Not sure which commands your token can run? Use
 [`gandi doctor`](/projects/gandi-cli/docs/doctor) to check your scopes.
