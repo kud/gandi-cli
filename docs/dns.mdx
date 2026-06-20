@@ -14,8 +14,8 @@ List every DNS record for a domain:
 gandi dns list example.com
 ```
 
-**Requires:** the **Accéder aux enregistrements DNS de vos domaines**
-permission on your token.
+**Requires:** the **Manage technical configuration** (`domain:tech`) permission
+on your token.
 
 ## ✏️ Create or update a record
 
@@ -40,8 +40,8 @@ gandi dns set example.com CNAME blog example.com
 gandi dns set example.com TXT @ "v=spf1 include:_mailcust.gandi.net ~all"
 ```
 
-**Requires:** the **Gérer les enregistrements DNS de vos domaines** permission on
-your token.
+**Requires:** the **Manage technical configuration** (`domain:tech`) permission
+on your token.
 
 ## 🗑️ Delete a record
 
@@ -51,8 +51,8 @@ Remove a record by type and name:
 gandi dns delete example.com A www
 ```
 
-**Requires:** the **Gérer les enregistrements DNS de vos domaines** permission on
-your token.
+**Requires:** the **Manage technical configuration** (`domain:tech`) permission
+on your token.
 
 ## 📖 Command reference
 
