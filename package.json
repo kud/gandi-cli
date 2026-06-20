@@ -1,6 +1,6 @@
 {
   "name": "@kud/gandi-cli",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A modern CLI for the Gandi v5 REST API",
   "type": "module",
   "bin": {
