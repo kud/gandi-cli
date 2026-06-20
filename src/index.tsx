@@ -38,6 +38,13 @@ import {
 } from "./lib/api.js"
 import { getApiKey } from "./lib/config.js"
 
+// Exit cleanly when a downstream reader closes the pipe early (e.g. `| head`,
+// or `| jq` that errors out) instead of crashing on the write.
+process.stdout.on("error", (err: NodeJS.ErrnoException) => {
+  if (err.code === "EPIPE") process.exit(0)
+  throw err
+})
+
 const pkg = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 ) as { version: string }
