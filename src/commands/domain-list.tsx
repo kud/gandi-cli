@@ -5,11 +5,11 @@ import { getApiKey } from "../lib/config.js"
 import type { Domain } from "../types/gandi.js"
 import Table from "../components/table.js"
 import SpinnerAction from "../components/spinner-action.js"
-import ErrorMessage from "../components/error.js"
+import CommandError from "../components/command-error.js"
 
 const DomainList = () => {
   const [domains, setDomains] = useState<Domain[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     const run = async () => {
@@ -18,13 +18,13 @@ const DomainList = () => {
         const data = await listDomains(key)
         setDomains(data)
       } catch (e) {
-        setError((e as Error).message)
+        setError(e as Error)
       }
     }
     run()
   }, [])
 
-  if (error) return <ErrorMessage message={error} />
+  if (error) return <CommandError error={error} />
   if (!domains) return <SpinnerAction label="Fetching domains…" />
 
   if (domains.length === 0) {

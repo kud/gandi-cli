@@ -1,11 +1,12 @@
-import type {
-  Domain,
-  DnsRecord,
-  GandiError,
-  TokenInfo,
-} from "../types/gandi.js"
+import type { Domain, DnsRecord, GandiError, UserInfo } from "../types/gandi.js"
+import { authError } from "./errors.js"
 
 const BASE_URL = "https://api.gandi.net/v5"
+
+const authHeaders = (apiKey: string) => ({
+  Authorization: `Bearer ${apiKey}`,
+  "Content-Type": "application/json",
+})
 
 const request = async <T>(
   apiKey: string,
@@ -14,18 +15,17 @@ const request = async <T>(
 ): Promise<T> => {
   const res = await fetch(`${BASE_URL}${path}`, {
     ...options,
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
+    headers: { ...authHeaders(apiKey), ...options.headers },
   })
 
   if (!res.ok) {
     const err = (await res
       .json()
       .catch(() => ({ message: res.statusText }))) as GandiError
-    throw new Error(err.message ?? `HTTP ${res.status}`)
+    const message = err.message ?? `HTTP ${res.status}`
+    if (res.status === 401 || res.status === 403)
+      throw authError("unauthorized", message)
+    throw new Error(message)
   }
 
   if (res.status === 204) return undefined as T
@@ -34,6 +34,16 @@ const request = async <T>(
 
 export const listDomains = (apiKey: string): Promise<Domain[]> =>
   request<Domain[]>(apiKey, "/domain/domains")
+
+export const renewDomain = (
+  apiKey: string,
+  domain: string,
+  duration: number,
+): Promise<void> =>
+  request<void>(apiKey, `/domain/domains/${domain}/renew`, {
+    method: "POST",
+    body: JSON.stringify({ duration }),
+  })
 
 export const listDnsRecords = (
   apiKey: string,
@@ -64,15 +74,26 @@ export const deleteDnsRecord = (
     method: "DELETE",
   })
 
-export const getTokenInfo = async (apiKey: string): Promise<TokenInfo> => {
-  const res = await fetch("https://id.gandi.net/tokeninfo", {
-    headers: { Authorization: `Bearer ${apiKey}` },
+export const tryGetUserInfo = async (
+  apiKey: string,
+): Promise<UserInfo | null> => {
+  const res = await fetch(`${BASE_URL}/organization/user-info`, {
+    headers: authHeaders(apiKey),
   })
-  if (!res.ok) {
-    const err = (await res
-      .json()
-      .catch(() => ({ message: res.statusText }))) as GandiError
-    throw new Error(err.message ?? `HTTP ${res.status}`)
-  }
-  return res.json() as Promise<TokenInfo>
+  if (!res.ok) return null
+  return res.json() as Promise<UserInfo>
+}
+
+export type CapabilityStatus = "ok" | "forbidden" | "error"
+
+export const probeCapability = async (
+  apiKey: string,
+  path: string,
+): Promise<CapabilityStatus> => {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    headers: authHeaders(apiKey),
+  })
+  if (res.ok) return "ok"
+  if (res.status === 403) return "forbidden"
+  return "error"
 }

@@ -3,7 +3,7 @@ import { Box, Text } from "ink"
 import { deleteDnsRecord } from "../lib/api.js"
 import { getApiKey } from "../lib/config.js"
 import SpinnerAction from "../components/spinner-action.js"
-import ErrorMessage from "../components/error.js"
+import CommandError from "../components/command-error.js"
 
 interface DnsDeleteProps {
   domain: string
@@ -13,7 +13,7 @@ interface DnsDeleteProps {
 
 const DnsDelete = ({ domain, type, name }: DnsDeleteProps) => {
   const [done, setDone] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     const run = async () => {
@@ -22,13 +22,13 @@ const DnsDelete = ({ domain, type, name }: DnsDeleteProps) => {
         await deleteDnsRecord(key, domain, type, name)
         setDone(true)
       } catch (e) {
-        setError((e as Error).message)
+        setError(e as Error)
       }
     }
     run()
   }, [])
 
-  if (error) return <ErrorMessage message={error} />
+  if (error) return <CommandError error={error} />
   if (!done) return <SpinnerAction label={`Deleting ${type} record ${name}…`} />
 
   return (

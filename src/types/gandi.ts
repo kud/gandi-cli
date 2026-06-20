@@ -31,12 +31,10 @@ export interface GandiError {
   cause: string
 }
 
-export interface TokenInfo {
-  user_id: string
-  sharing_id: string
-  pat_id: string
-  pat_name: string
-  scope: string[]
-  entities: { id: string }[]
-  expires_in: number
+export interface UserInfo {
+  id?: string
+  username?: string
+  name?: string
+  email?: string
+  lang?: string
 }

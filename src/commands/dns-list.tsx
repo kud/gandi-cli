@@ -5,7 +5,7 @@ import { getApiKey } from "../lib/config.js"
 import type { DnsRecord } from "../types/gandi.js"
 import Table from "../components/table.js"
 import SpinnerAction from "../components/spinner-action.js"
-import ErrorMessage from "../components/error.js"
+import CommandError from "../components/command-error.js"
 
 interface DnsListProps {
   domain: string
@@ -13,7 +13,7 @@ interface DnsListProps {
 
 const DnsList = ({ domain }: DnsListProps) => {
   const [records, setRecords] = useState<DnsRecord[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     const run = async () => {
@@ -22,13 +22,13 @@ const DnsList = ({ domain }: DnsListProps) => {
         const data = await listDnsRecords(key, domain)
         setRecords(data)
       } catch (e) {
-        setError((e as Error).message)
+        setError(e as Error)
       }
     }
     run()
   }, [])
 
-  if (error) return <ErrorMessage message={error} />
+  if (error) return <CommandError error={error} />
   if (!records)
     return <SpinnerAction label={`Fetching DNS records for ${domain}…`} />
 

@@ -2,6 +2,7 @@ import { readFileSync } from "fs"
 import { homedir } from "os"
 import { join } from "path"
 import { parse } from "smol-toml"
+import { authError } from "./errors.js"
 
 interface Config {
   api_key: string
@@ -20,9 +21,7 @@ const resolveApiKey = (): string => {
     // file absent or unreadable — fall through to error
   }
 
-  throw new Error(
-    "No API key found. Set GANDI_API_KEY or add api_key to ~/.config/gandi/config.toml",
-  )
+  throw authError("no-token", "No Gandi token found.")
 }
 
 export const getApiKey = (): string => resolveApiKey()

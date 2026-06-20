@@ -1,75 +1,99 @@
 import React, { useEffect, useState } from "react"
 import { Box, Text } from "ink"
-import { getTokenInfo } from "../lib/api.js"
+import { tryGetUserInfo, probeCapability } from "../lib/api.js"
+import type { CapabilityStatus } from "../lib/api.js"
 import { getApiKey } from "../lib/config.js"
-import type { TokenInfo } from "../types/gandi.js"
+import { authError } from "../lib/errors.js"
+import type { UserInfo } from "../types/gandi.js"
 import SpinnerAction from "../components/spinner-action.js"
-import ErrorMessage from "../components/error.js"
+import CommandError from "../components/command-error.js"
 
-const SCOPE_MAP: Record<string, { label: string; commands: string }> = {
-  "domain:view": { label: "View domains", commands: "gandi domain list" },
-  "domain:renew": {
-    label: "Renew domains",
-    commands: "gandi domain renew",
+const CAPABILITIES = [
+  {
+    label: "View domains",
+    path: "/domain/domains?per_page=1",
+    commands: "gandi domain list / renew",
   },
-  "domain:tech": {
+  {
     label: "Manage DNS",
+    path: "/livedns/domains",
     commands: "gandi dns list / set / delete",
   },
+]
+
+interface Capability {
+  label: string
+  commands: string
+  status: CapabilityStatus
 }
 
-const formatExpiry = (seconds: number): string => {
-  const days = Math.floor(seconds / 86400)
-  if (days > 0) return `${days} day${days !== 1 ? "s" : ""}`
-  const hours = Math.floor(seconds / 3600)
-  return `${hours} hour${hours !== 1 ? "s" : ""}`
+const ICON: Record<CapabilityStatus, { glyph: string; color: string }> = {
+  ok: { glyph: "✔", color: "green" },
+  forbidden: { glyph: "✖", color: "red" },
+  error: { glyph: "?", color: "yellow" },
 }
 
-const AuthWhoami = () => {
-  const [info, setInfo] = useState<TokenInfo | null>(null)
-  const [error, setError] = useState<string | null>(null)
+const Doctor = () => {
+  const [info, setInfo] = useState<UserInfo | null>(null)
+  const [caps, setCaps] = useState<Capability[] | null>(null)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     const run = async () => {
       try {
         const key = getApiKey()
-        const data = await getTokenInfo(key)
-        setInfo(data)
+        const [user, probed] = await Promise.all([
+          tryGetUserInfo(key),
+          Promise.all(
+            CAPABILITIES.map(async (c) => ({
+              label: c.label,
+              commands: c.commands,
+              status: await probeCapability(key, c.path),
+            })),
+          ),
+        ])
+
+        const allDenied = probed.every((c) => c.status !== "ok")
+        if (!user && allDenied) {
+          setError(
+            authError("unauthorized", "Access was denied to this token."),
+          )
+          return
+        }
+
+        setInfo(user)
+        setCaps(probed)
       } catch (e) {
-        setError((e as Error).message)
+        setError(e as Error)
       }
     }
     run()
   }, [])
 
-  if (error) return <ErrorMessage message={error} />
-  if (!info) return <SpinnerAction label="Checking token…" />
+  if (error) return <CommandError error={error} />
+  if (!caps) return <SpinnerAction label="Checking token…" />
 
-  const knownScopes = Object.keys(SCOPE_MAP)
+  const who =
+    info?.username ?? info?.name ?? "your token (identity unavailable)"
 
   return (
     <Box flexDirection="column" gap={1}>
-      <Box flexDirection="column">
-        <Text bold color="white">
-          {info.pat_name}
-        </Text>
-        <Text color="gray">
-          Expires in {formatExpiry(info.expires_in)} · {info.entities.length}{" "}
-          {info.entities.length !== 1 ? "entities" : "entity"}
-        </Text>
-      </Box>
+      <Text>
+        <Text color="green">✔ </Text>
+        Authenticated as <Text bold>{who}</Text>
+        {info?.email ? <Text color="gray"> ({info.email})</Text> : null}
+      </Text>
 
       <Box flexDirection="column">
-        {knownScopes.map((scope) => {
-          const has = info.scope.includes(scope)
-          const entry = SCOPE_MAP[scope]
+        {caps.map((c) => {
+          const icon = ICON[c.status]
           return (
-            <Box key={scope} gap={2}>
-              <Text color={has ? "green" : "red"}>{has ? "✓" : "✗"}</Text>
-              <Text color={has ? "white" : "gray"} dimColor={!has}>
-                {scope}
-              </Text>
-              <Text color="gray">{entry.commands}</Text>
+            <Box key={c.label} gap={2}>
+              <Text color={icon.color}>{icon.glyph}</Text>
+              <Box width={16}>
+                <Text>{c.label}</Text>
+              </Box>
+              <Text color="gray">{c.commands}</Text>
             </Box>
           )
         })}
@@ -78,4 +102,4 @@ const AuthWhoami = () => {
   )
 }
 
-export default AuthWhoami
+export default Doctor
