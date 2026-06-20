@@ -1,16 +1,13 @@
-name: Release
+name: CI
 
 on:
   push:
-    tags:
-      - "v*"
+    branches: [main]
+  pull_request:
 
 jobs:
-  publish:
+  test:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v6
 
@@ -23,5 +20,3 @@ jobs:
       - run: npm run build
 
       - run: npm test
-
-      - run: npm publish --access public
