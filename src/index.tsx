@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import React from "react"
+import { readFileSync } from "fs"
 import { render } from "ink"
 import { Command } from "commander"
 import Doctor from "./commands/doctor.js"
@@ -9,12 +10,17 @@ import DnsList from "./commands/dns-list.js"
 import DnsSet from "./commands/dns-set.js"
 import DnsDelete from "./commands/dns-delete.js"
 
+const pkg = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+) as { version: string }
+
 const program = new Command()
 
 program
   .name("gandi")
   .description("Modern CLI for the Gandi v5 REST API")
-  .version("0.1.0")
+  .version(pkg.version)
+  .showHelpAfterError("(add --help for usage)")
 
 program
   .command("doctor")
