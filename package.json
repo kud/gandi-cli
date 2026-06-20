@@ -16,11 +16,28 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "homepage": "https://kud.github.io/gandi-cli",
+  "homepage": "https://kud.io/projects/gandi-cli",
   "repository": {
     "type": "git",
     "url": "https://github.com/kud/gandi-cli"
   },
+  "license": "MIT",
+  "author": {
+    "name": "Erwann Mest",
+    "url": "https://kud.io"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "gandi",
+    "dns",
+    "livedns",
+    "domains",
+    "web-redirect",
+    "cli",
+    "ink"
+  ],
   "dependencies": {
     "commander": "^12.1.0",
     "ink": "^7.0.0",
