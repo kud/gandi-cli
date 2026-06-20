@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.5.2 — 2026-06-20
+
+### Fixes
+
+- One-shot commands in the normal terminal UI no longer hang after printing their output — the process now exits automatically once the result is shown, so you get your prompt back without pressing Ctrl+C. ([02dc55f](https://github.com/kud/gandi-cli/commit/02dc55f8449d0f59b57427fff430af407f88ab90))
+
+---
+
 ## 0.5.1 — 2026-06-20
 
 ### Fixes
