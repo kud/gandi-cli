@@ -4,6 +4,29 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.6.0 — 2026-08-01
+
+### Highlights
+
+- **New `gandi redirect update <domain> <source> [target]` command updates a web redirect in place.** Previously the only way to change a redirect was to delete it and re-add it, which discarded the Gandi-issued TLS certificate and reset `protocol` to its default. `update` calls Gandi's PATCH endpoint instead, and only sends the fields you actually pass — untouched settings, certificate included, survive the edit. Flags: `-t/--type` (`http301`, `http302`, `cloak`), `-p/--protocol` (`http`, `https`, `httpsonly`), and `--override`/`--no-override` to control whether a conflicting DNS record is overwritten. Running it with no target and no flags errors instead of firing an empty request. One limit carries over from the API itself: Gandi's PATCH cannot move a redirect to a different source host, so a source change still needs `delete` + `add`. ([26e0bbe](https://github.com/kud/gandi-cli/commit/26e0bbe96881dc719bbd384325d3b0bf3b23fea6))
+
+### Fixes
+
+- `redirect list` no longer doubles the domain suffix in the SOURCE column (it printed `example.com.example.com`) — it now prints the host once. ([26e0bbe](https://github.com/kud/gandi-cli/commit/26e0bbe96881dc719bbd384325d3b0bf3b23fea6))
+- `redirect delete` sent a bare label to Gandi's API, which rejected it with HTTP 400 — it now sends the fully-qualified host. Across the redirect commands, sources can now be written either way, bare (`www`) or fully qualified (`www.example.com`). ([26e0bbe](https://github.com/kud/gandi-cli/commit/26e0bbe96881dc719bbd384325d3b0bf3b23fea6))
+
+<details>
+<summary>Internal (5 commits)</summary>
+
+- Added ESLint with TypeScript and React Hooks support, plus a `lint`/`lint:fix` script and a CI lint gate.
+- Added a vitest suite covering the API client, config resolution, and error mapping, and ink-testing-library component tests for the auth guide, error, dangerous-action, and DNS list screens; CI now gates release on tests passing.
+- Added an MIT licence and package metadata (author, engines, keywords, homepage), and reworked the README with features, usage, and configuration sections.
+- Fixed the npm OIDC release workflow pattern.
+
+</details>
+
+---
+
 ## 0.5.2 — 2026-06-20
 
 ### Fixes
