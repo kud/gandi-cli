@@ -46,6 +46,16 @@ export interface WebRedir {
   override?: boolean
 }
 
+// The PATCH body for a web redirect. Every field is optional and omitted keys
+// are left untouched, so an absent `override` is distinct from `override:false`.
+// `host` is deliberately absent: Gandi cannot move a redirect to another source.
+export interface RedirectPatch {
+  url?: string
+  type?: string
+  protocol?: string
+  override?: boolean
+}
+
 export interface DnsRecord {
   rrset_name: string
   rrset_type: string

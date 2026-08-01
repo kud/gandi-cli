@@ -1,6 +1,6 @@
 import React from "react"
 import { Box, Text } from "ink"
-import { deleteRedirect } from "../lib/api.js"
+import { deleteRedirect, toRedirectHost } from "../lib/api.js"
 import { getApiKey } from "../lib/config.js"
 import DangerousAction from "../components/dangerous-action.js"
 
@@ -11,7 +11,7 @@ interface RedirectDeleteProps {
 }
 
 const RedirectDelete = ({ domain, host, yes }: RedirectDeleteProps) => {
-  const source = `${host || "@"}.${domain}`
+  const source = toRedirectHost(domain, host)
   return (
     <DangerousAction
       yes={yes}
