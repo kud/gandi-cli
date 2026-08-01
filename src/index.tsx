@@ -369,4 +369,12 @@ redirect
     ),
   )
 
-program.parse(process.argv.filter((a) => a !== "--json"))
+// Bare `gandi` opens the browser, the way k9s, lazygit and btop do: once a tool
+// has a full interface, that interface is the tool and needs no verb. The
+// import is dynamic so Ink and React are never loaded for `gandi dns list`.
+if (process.argv.length <= 2) {
+  const { startBrowse } = await import("./browse.js")
+  await startBrowse()
+} else {
+  program.parse(process.argv.filter((a) => a !== "--json"))
+}
