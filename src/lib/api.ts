@@ -77,11 +77,35 @@ export const setAutorenew = (
     body: JSON.stringify({ enabled }),
   })
 
-export const listRedirects = (
+// Gandi paginates web redirects and caps an unqualified request at 50, so a
+// domain with more than that lost the tail with no error and no warning —
+// `redirect list` reported 50 of 64 as though that were all of them, and the
+// missing ones were invisible to any script reading the JSON. Page through
+// until a short page comes back rather than trusting a single response.
+const REDIRECTS_PER_PAGE = 100
+const REDIRECTS_PAGE_LIMIT = 100
+
+export const listRedirects = async (
   apiKey: string,
   domain: string,
-): Promise<WebRedir[]> =>
-  request<WebRedir[]>(apiKey, `/domain/domains/${domain}/webredirs`)
+): Promise<WebRedir[]> => {
+  const all: WebRedir[] = []
+
+  for (let page = 1; page <= REDIRECTS_PAGE_LIMIT; page++) {
+    const batch = await request<WebRedir[]>(
+      apiKey,
+      `/domain/domains/${domain}/webredirs?page=${page}&per_page=${REDIRECTS_PER_PAGE}`,
+    )
+    all.push(...batch)
+    if (batch.length < REDIRECTS_PER_PAGE) return all
+  }
+
+  // Refuse to return a silently truncated list: the whole point of this
+  // function is that a short answer is indistinguishable from a complete one.
+  throw new Error(
+    `Stopped after ${REDIRECTS_PAGE_LIMIT} pages of web redirects for ${domain} — the list may be incomplete`,
+  )
+}
 
 // Gandi identifies a web redirect by its fully-qualified source host, in the
 // list response, in the {host} path segment and in the POST body alike — the

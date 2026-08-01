@@ -7,6 +7,7 @@ import {
   setDnsRecord,
   exportZone,
   checkDomain,
+  listRedirects,
   toRedirectHost,
   addRedirect,
   updateRedirect,
@@ -157,6 +158,43 @@ describe("checkDomain", () => {
     fetchMock.mockResolvedValue(res(200, { products: [] }))
     await checkDomain("k", "ex ample.com")
     expect(fetchMock.mock.calls[0][0]).toContain("name=ex%20ample.com")
+  })
+})
+
+describe("listRedirects", () => {
+  const page = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      host: `h${i}.ex.com`,
+      type: "http301",
+    }))
+
+  it("returns everything when a single short page covers it", async () => {
+    fetchMock.mockResolvedValue(res(200, page(3)))
+    expect(await listRedirects("k", "ex.com")).toHaveLength(3)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it("pages past the first response instead of truncating", async () => {
+    fetchMock
+      .mockResolvedValueOnce(res(200, page(100)))
+      .mockResolvedValueOnce(res(200, page(14)))
+    expect(await listRedirects("k", "ex.com")).toHaveLength(114)
+    expect(fetchMock.mock.calls[0][0]).toContain("page=1&per_page=100")
+    expect(fetchMock.mock.calls[1][0]).toContain("page=2&per_page=100")
+  })
+
+  it("stops on an empty page when the total is an exact multiple", async () => {
+    fetchMock
+      .mockResolvedValueOnce(res(200, page(100)))
+      .mockResolvedValueOnce(res(200, []))
+    expect(await listRedirects("k", "ex.com")).toHaveLength(100)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it("throws rather than return a truncated list if pages never run short", async () => {
+    fetchMock.mockResolvedValue(res(200, page(100)))
+    const e = (await reject(listRedirects("k", "ex.com"))) as Error
+    expect(e.message).toContain("may be incomplete")
   })
 })
 
