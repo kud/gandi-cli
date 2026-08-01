@@ -41,7 +41,7 @@
     "ink"
   ],
   "dependencies": {
-    "@kud/gandi": "file:/Users/kud/projects/gandi",
+    "@kud/gandi": "0.1.0",
     "commander": "^12.1.0",
     "ink": "^7.0.0",
     "react": "^19.2.5"
