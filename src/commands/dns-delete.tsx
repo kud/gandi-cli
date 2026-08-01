@@ -1,7 +1,7 @@
 import React from "react"
 import { Box, Text } from "ink"
-import { deleteDnsRecord } from "../lib/api.js"
-import { getApiKey } from "../lib/config.js"
+import { deleteDnsRecord } from "@kud/gandi"
+import { getApiKey } from "@kud/gandi"
 import DangerousAction from "../components/dangerous-action.js"
 
 interface DnsDeleteProps {

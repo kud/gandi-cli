@@ -2,7 +2,7 @@ import React from "react"
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
 import { render } from "ink-testing-library"
 import CommandError from "./command-error.js"
-import { authError } from "../lib/errors.js"
+import { authError } from "@kud/gandi"
 
 // CommandError calls useExit(true), which unmounts the component right after it
 // renders — so assert on the full frame history, not the (now-empty) last frame.

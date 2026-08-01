@@ -38,9 +38,9 @@ import {
   deleteRedirect,
   toRedirectHost,
   getTokenInfo,
-} from "./lib/api.js"
-import type { RedirectPatch } from "./types/gandi.js"
-import { getApiKey } from "./lib/config.js"
+} from "@kud/gandi"
+import type { RedirectPatch } from "@kud/gandi"
+import { getApiKey } from "@kud/gandi"
 
 // Exit cleanly when a downstream reader closes the pipe early (e.g. `| head`,
 // or `| jq` that errors out) instead of crashing on the write.

@@ -2,11 +2,13 @@ import React from "react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { render } from "ink-testing-library"
 
-vi.mock("../lib/config.js", () => ({ getApiKey: () => "token" }))
-vi.mock("../lib/api.js", () => ({ listDnsRecords: vi.fn() }))
+vi.mock("@kud/gandi", () => ({
+  getApiKey: () => "token",
+  listDnsRecords: vi.fn(),
+}))
 
 import DnsList from "./dns-list.js"
-import { listDnsRecords } from "../lib/api.js"
+import { listDnsRecords } from "@kud/gandi"
 
 const mockList = vi.mocked(listDnsRecords)
 

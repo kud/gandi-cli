@@ -1,6 +1,6 @@
 import React from "react"
 import { Box, Text } from "ink"
-import type { AuthErrorKind } from "../lib/errors.js"
+import type { AuthErrorKind } from "@kud/gandi"
 
 const TOKEN_PAGE = "https://admin.gandi.net"
 const TOKEN_NAV = "Account → Security → Personal Access Tokens → Create"
