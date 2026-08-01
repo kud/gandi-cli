@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.6.1 — 2026-08-01
+
+### Fixes
+
+- `redirect list` silently under-reported on domains with more than 50 redirects — Gandi's API caps a single page at 50 and returns no error or indication that the list is partial, so a domain holding 64 redirects showed only 50, in both the table and `--json`, with nothing to signal the other 14 were missing. It now pages through the results until a short page confirms the end, and throws rather than hand back a quietly truncated list if pages never run short. ([08116da](https://github.com/kud/gandi-cli/commit/08116daea8a42d00e98ccbccba29b1fec600fab2))
+
+---
+
 ## 0.6.0 — 2026-08-01
 
 ### Highlights
