@@ -32,7 +32,7 @@ const RedirectList = ({ domain }: { domain: string }) => {
     return <Text color="gray">No web redirects found.</Text>
 
   const rows = redirects.map((r) => ({
-    SOURCE: `${r.host || "@"}.${domain}`,
+    SOURCE: r.host,
     TYPE: r.type,
     TARGET: r.url ?? "—",
   }))

@@ -17,6 +17,7 @@ import DnsGet from "./commands/dns-get.js"
 import DnsDelete from "./commands/dns-delete.js"
 import RedirectList from "./commands/redirect-list.js"
 import RedirectAdd from "./commands/redirect-add.js"
+import RedirectUpdate from "./commands/redirect-update.js"
 import RedirectDelete from "./commands/redirect-delete.js"
 import CommandError from "./components/command-error.js"
 import {
@@ -33,9 +34,12 @@ import {
   exportZone,
   listRedirects,
   addRedirect,
+  updateRedirect,
   deleteRedirect,
+  toRedirectHost,
   getTokenInfo,
 } from "./lib/api.js"
+import type { RedirectPatch } from "./types/gandi.js"
 import { getApiKey } from "./lib/config.js"
 
 // Exit cleanly when a downstream reader closes the pipe early (e.g. `| head`,
@@ -310,6 +314,44 @@ redirect
         />
       ),
     ),
+  )
+
+redirect
+  .command("update <domain> <source> [target]")
+  .description("Update a web redirect in place (its source host cannot change)")
+  .option("-t, --type <type>", "Redirect type: http301, http302, or cloak")
+  .option("-p, --protocol <protocol>", "Protocol: http, https, or httpsonly")
+  .option("--override", "Overwrite a conflicting DNS record")
+  .option(
+    "--no-override",
+    "Error rather than overwrite a conflicting DNS record",
+  )
+  .action(
+    (
+      d: string,
+      source: string,
+      target: string | undefined,
+      opts: { type?: string; protocol?: string; override?: boolean },
+    ) => {
+      const patch: RedirectPatch = {
+        ...(target !== undefined && { url: target }),
+        ...(opts.type !== undefined && { type: opts.type }),
+        ...(opts.protocol !== undefined && { protocol: opts.protocol }),
+        ...(opts.override !== undefined && { override: opts.override }),
+      }
+      const host = toRedirectHost(d, source)
+      execute(
+        async () => {
+          if (Object.keys(patch).length === 0)
+            throw new Error(
+              "Nothing to update — pass a target URL, --type, --protocol, or --override",
+            )
+          await updateRedirect(getApiKey(), d, source, patch)
+          return { ok: true, host, ...patch }
+        },
+        () => <RedirectUpdate domain={d} host={host} patch={patch} />,
+      )
+    },
   )
 
 redirect

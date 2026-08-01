@@ -7,6 +7,10 @@ import {
   setDnsRecord,
   exportZone,
   checkDomain,
+  toRedirectHost,
+  addRedirect,
+  updateRedirect,
+  deleteRedirect,
 } from "./api.js"
 import { authErrorKind } from "./errors.js"
 
@@ -153,5 +157,87 @@ describe("checkDomain", () => {
     fetchMock.mockResolvedValue(res(200, { products: [] }))
     await checkDomain("k", "ex ample.com")
     expect(fetchMock.mock.calls[0][0]).toContain("name=ex%20ample.com")
+  })
+})
+
+describe("toRedirectHost", () => {
+  it("qualifies a bare label with the domain", () => {
+    expect(toRedirectHost("ex.com", "www")).toBe("www.ex.com")
+  })
+
+  it("leaves an already-qualified host untouched", () => {
+    expect(toRedirectHost("ex.com", "www.ex.com")).toBe("www.ex.com")
+  })
+
+  it("qualifies a multi-level label", () => {
+    expect(toRedirectHost("ex.com", "a.b")).toBe("a.b.ex.com")
+  })
+
+  it("treats an empty host and @ as the apex", () => {
+    expect(toRedirectHost("ex.com", "")).toBe("ex.com")
+    expect(toRedirectHost("ex.com", "@")).toBe("ex.com")
+    expect(toRedirectHost("ex.com", "ex.com")).toBe("ex.com")
+  })
+
+  it("is idempotent, so normalising twice is safe", () => {
+    const once = toRedirectHost("ex.com", "www")
+    expect(toRedirectHost("ex.com", once)).toBe(once)
+  })
+
+  it("does not mistake a domain that merely ends in the same letters", () => {
+    expect(toRedirectHost("ex.com", "www.notex.com")).toBe(
+      "www.notex.com.ex.com",
+    )
+  })
+})
+
+describe("addRedirect", () => {
+  it("POSTs a fully-qualified host even when given a bare label", async () => {
+    fetchMock.mockResolvedValue(res(201, { message: "ok" }))
+    await addRedirect("k", "ex.com", "www", "https://ex.org", "http301")
+    const [url, opts] = fetchMock.mock.calls[0]
+    expect(url).toContain("/domain/domains/ex.com/webredirs")
+    expect(opts.method).toBe("POST")
+    expect(JSON.parse(opts.body)).toEqual({
+      host: "www.ex.com",
+      url: "https://ex.org",
+      type: "http301",
+    })
+  })
+})
+
+describe("updateRedirect", () => {
+  it("PATCHes the fully-qualified host path", async () => {
+    fetchMock.mockResolvedValue(res(200, { message: "ok" }))
+    await updateRedirect("k", "ex.com", "www", { url: "https://ex.net" })
+    const [url, opts] = fetchMock.mock.calls[0]
+    expect(url).toContain("/domain/domains/ex.com/webredirs/www.ex.com")
+    expect(opts.method).toBe("PATCH")
+  })
+
+  it("sends only the supplied fields, so untouched ones are left alone", async () => {
+    fetchMock.mockResolvedValue(res(200, { message: "ok" }))
+    await updateRedirect("k", "ex.com", "www", { type: "http302" })
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
+      type: "http302",
+    })
+  })
+
+  it("distinguishes override:false from an omitted override", async () => {
+    fetchMock.mockResolvedValue(res(200, { message: "ok" }))
+    await updateRedirect("k", "ex.com", "www", { override: false })
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
+      override: false,
+    })
+  })
+})
+
+describe("deleteRedirect", () => {
+  it("DELETEs the fully-qualified host path, not the bare label", async () => {
+    fetchMock.mockResolvedValue(res(204, undefined))
+    await deleteRedirect("k", "ex.com", "www")
+    const [url, opts] = fetchMock.mock.calls[0]
+    expect(url).toMatch(/\/domain\/domains\/ex\.com\/webredirs\/www\.ex\.com$/)
+    expect(opts.method).toBe("DELETE")
   })
 })

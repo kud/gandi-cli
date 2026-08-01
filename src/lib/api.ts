@@ -3,6 +3,7 @@ import type {
   DomainCheck,
   DnsRecord,
   GandiError,
+  RedirectPatch,
   TokenInfo,
   WebRedir,
 } from "../types/gandi.js"
@@ -82,6 +83,19 @@ export const listRedirects = (
 ): Promise<WebRedir[]> =>
   request<WebRedir[]>(apiKey, `/domain/domains/${domain}/webredirs`)
 
+// Gandi identifies a web redirect by its fully-qualified source host, in the
+// list response, in the {host} path segment and in the POST body alike — the
+// bare label 400s. Earlier versions assumed the label everywhere, which made
+// `redirect list` print `www.example.com.example.com` and sent `delete` to a
+// path the API rejects. Both spellings are accepted here and normalised to the
+// FQDN, so the fix does not break anyone's existing scripts.
+export const toRedirectHost = (domain: string, host: string): string =>
+  !host || host === "@"
+    ? domain
+    : host === domain || host.endsWith(`.${domain}`)
+      ? host
+      : `${host}.${domain}`
+
 export const addRedirect = (
   apiKey: string,
   domain: string,
@@ -91,17 +105,31 @@ export const addRedirect = (
 ): Promise<void> =>
   request<void>(apiKey, `/domain/domains/${domain}/webredirs`, {
     method: "POST",
-    body: JSON.stringify({ host, url, type }),
+    body: JSON.stringify({ host: toRedirectHost(domain, host), url, type }),
   })
+
+export const updateRedirect = (
+  apiKey: string,
+  domain: string,
+  host: string,
+  patch: RedirectPatch,
+): Promise<void> =>
+  request<void>(
+    apiKey,
+    `/domain/domains/${domain}/webredirs/${toRedirectHost(domain, host)}`,
+    { method: "PATCH", body: JSON.stringify(patch) },
+  )
 
 export const deleteRedirect = (
   apiKey: string,
   domain: string,
   host: string,
 ): Promise<void> =>
-  request<void>(apiKey, `/domain/domains/${domain}/webredirs/${host}`, {
-    method: "DELETE",
-  })
+  request<void>(
+    apiKey,
+    `/domain/domains/${domain}/webredirs/${toRedirectHost(domain, host)}`,
+    { method: "DELETE" },
+  )
 
 export const listDnsRecords = (
   apiKey: string,

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { Box, Text } from "ink"
-import { addRedirect } from "../lib/api.js"
+import { addRedirect, toRedirectHost } from "../lib/api.js"
 import { getApiKey } from "../lib/config.js"
 import SpinnerAction from "../components/spinner-action.js"
 import CommandError from "../components/command-error.js"
@@ -37,9 +37,7 @@ const RedirectAdd = ({ domain, host, target, type }: RedirectAddProps) => {
     <Box>
       <Text color="green">✔ </Text>
       <Text>
-        <Text bold>
-          {host || "@"}.{domain}
-        </Text>{" "}
+        <Text bold>{toRedirectHost(domain, host)}</Text>{" "}
         <Text color="cyan">{type}</Text> → {target}
       </Text>
     </Box>
