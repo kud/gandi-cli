@@ -42,7 +42,7 @@
   ],
   "dependencies": {
     "@kud/gandi": "0.1.0",
-    "@kud/gandi-ink": "0.1.0",
+    "@kud/gandi-ink": "0.2.0",
     "commander": "^12.1.0",
     "ink": "^7.0.0",
     "react": "^19.2.5"
