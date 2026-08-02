@@ -4,6 +4,18 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.7.0 — 2026-08-02
+
+### Highlights
+
+- **Running `gandi` on its own now opens an interactive browser**, the way `k9s` and `lazygit` do — once a tool has a full interface, that interface is the tool and needs no verb. Pick a domain, then move between its DNS records, web redirects and registration details with `tab`. Editing is inline: change a redirect target or a DNS value and TTL without leaving the screen, with anything destructive gated behind a confirmation. Every subcommand behaves exactly as before, and scripted use never loads the interface at all. ([fb929f8](https://github.com/kud/gandi-cli/commit/fb929f8))
+
+### Internal
+
+- The API client moved out into a new [`@kud/gandi`](https://github.com/kud/gandi) package, and the browser itself into [`@kud/gandi-ink`](https://github.com/kud/gandi-ink), so the same interface can be mounted somewhere other than this CLI. Nothing about the commands changed in the move. ([4e914f9](https://github.com/kud/gandi-cli/commit/4e914f9), [496e44a](https://github.com/kud/gandi-cli/commit/496e44a))
+
+---
+
 ## 0.6.1 — 2026-08-01
 
 ### Fixes
