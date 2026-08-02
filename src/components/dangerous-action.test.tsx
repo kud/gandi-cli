@@ -1,9 +1,8 @@
 import React from "react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { render } from "ink-testing-library"
+import { renderFrames } from "@kud/cli-testing"
 import DangerousAction from "./dangerous-action.js"
 
-const output = (frames: string[]) => frames.join("\n")
 
 describe("DangerousAction", () => {
   beforeEach(() => {
@@ -15,7 +14,7 @@ describe("DangerousAction", () => {
 
   it("blocks and does not run without --yes", () => {
     const run = vi.fn().mockResolvedValue(undefined)
-    const { frames } = render(
+    const ui = renderFrames(
       <DangerousAction
         prompt="This will delete X."
         label="Deleting…"
@@ -23,14 +22,14 @@ describe("DangerousAction", () => {
         done={<>done</>}
       />,
     )
-    expect(output(frames)).toContain("--yes")
+    expect(ui.output()).toContain("--yes")
     expect(run).not.toHaveBeenCalled()
     expect(process.exitCode).toBe(1)
   })
 
   it("runs and shows the done frame when --yes is given", async () => {
     const run = vi.fn().mockResolvedValue(undefined)
-    const { frames } = render(
+    const ui = renderFrames(
       <DangerousAction
         yes
         prompt="This will delete X."
@@ -39,7 +38,7 @@ describe("DangerousAction", () => {
         done={<>deleted-ok</>}
       />,
     )
-    await vi.waitFor(() => expect(output(frames)).toContain("deleted-ok"))
+    await ui.waitFor("deleted-ok")
     expect(run).toHaveBeenCalledTimes(1)
   })
 })
